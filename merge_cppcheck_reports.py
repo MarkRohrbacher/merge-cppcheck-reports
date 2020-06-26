@@ -47,8 +47,6 @@ def _get_child_nodes(parent_node, parent_node_name, predicate_on_size):
     children = parent_node.findall(parent_node_name)
     error_prefix = 'node "{0}"'.format(parent_node_name)
 
-    if children is None or not children:
-        return None, '{0} does not exist'.format(error_prefix)
     if not predicate_on_size(len(children)):
         return None, '{0} unsatisfied predicate'.format(error_prefix)
 
@@ -133,13 +131,16 @@ def _process_xml_file(xml_file):
     if error_message is not None:
         raise _ParserException(error_message)
 
-    assert(len(errors_node) == 1)
+    assert(errors_node and len(errors_node) == 1)
 
     error_nodes, error_message = _get_child_nodes(
         errors_node[0], 'error', lambda p: True
     )
     if error_message is not None:
         raise _ParserException(error_message)
+
+    if(error_nodes is None):
+        return
 
     is_first_iter = False
     if _Global.new_xml is None:
